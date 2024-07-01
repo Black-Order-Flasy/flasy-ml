@@ -1,4 +1,5 @@
-
+from sklearn.cluster import KMeans
+import pandas as pd
 import pickle
 import numpy as np
 
@@ -7,7 +8,7 @@ with open('model/kmeans_centroids.pkl', 'rb') as f:
   centroids = pickle.load(f)
 
 # Define the number of clusters (same as used for training)
-k = 3
+k = 2
 
 def predict_cluster(elevation, rainfall, centroids):
   """
@@ -39,10 +40,12 @@ predicted_cluster = predict_cluster(elevation, rainfall, centroids)
 
 # print("Predicted cluster for (", elevation1, ",", rainfall1, "):", predicted_cluster1)
 category = ""
-if (int(predicted_cluster) == 0) :
+if (int(predicted_cluster) == 1) :
+  category = "Bahaya"
+elif (int(predicted_cluster) == 3) :
   category = "Waspada"
-elif (int(predicted_cluster) == 1) :
-  category = "Awas"
-elif (int(predicted_cluster) == 2) :
+elif (int(predicted_cluster) == 0) :
   category = "Siaga"
+elif (int(predicted_cluster) == 7 or int(predicted_cluster) == 7 or int(predicted_cluster) == 7) :
+  category = "Aman"
 print("Predicted cluster for (", elevation, ",", rainfall, "):", predicted_cluster, category)
