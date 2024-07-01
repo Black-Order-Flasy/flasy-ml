@@ -19,3 +19,12 @@ streamflow = float(input("Streamflow: "))
 
 example_prediction = predict_flood_probability(rainfall, forest_ratio, streamflow)
 print(f"Example prediction (flood probability percentage): {example_prediction}")
+
+if (example_prediction >= 1.00 or example_prediction <= 25.00) :
+    print("Aman")
+elif (example_prediction >= 25.10 or example_prediction <= 50.00) :
+    print("Siaga")
+elif (example_prediction >= 50.10 or example_prediction <= 75.00) :
+    print("Waspada")
+elif (example_prediction >= 75.10 or example_prediction <= 100.00) :
+    print("Awas")
