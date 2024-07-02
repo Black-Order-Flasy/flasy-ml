@@ -1,30 +1,29 @@
-import pandas as pd
-import pickle
+import joblib
+import numpy as np
 
-# Validation script function
-def predict_flood_probability(rr, forest_ratio, streamflow):
-    with open('model/flood_probability_best_model.pkl', 'rb') as file:
-        model = pickle.load(file)
-    features = pd.DataFrame({
-        'RR': [rr],
-        'Forest_Ratio': [forest_ratio],
-        'Streamflow': [streamflow]
-    })
-    prediction = model.predict(features)
-    return prediction[0]
+# Load the model
+rf_model = joblib.load('model/flood_prediction_rf_model.pkl')
 
-rainfall = float(input("Rainfall: "))
-forest_ratio = float(input("Forest Ratio: "))
-streamflow = float(input("Streamflow: "))
+# Function to predict flood probability using Random Forest
+def predict_flood_probability_rf(rainfall, forest_ratio, streamflow):
+    prob = rf_model.predict_proba([[rainfall, forest_ratio, streamflow]])[0][1]
+    return prob
 
-example_prediction = predict_flood_probability(rainfall, forest_ratio, streamflow)
-print(f"Example prediction (flood probability percentage): {example_prediction}")
+# Example usage
+rainfall = float(input("Enter Rainfall (RR): "))
+forest_ratio = float(input("Enter Forest Ratio: "))
+streamflow = float(input("Enter Streamflow: "))
 
-if (example_prediction >= 1.00 or example_prediction <= 25.00) :
+flood_probability = predict_flood_probability_rf(rainfall, forest_ratio, streamflow)
+print(f"Flood probability for RR={rainfall}, Forest_Ratio={forest_ratio}, Streamflow={streamflow}: {flood_probability:.2%}")
+
+print(flood_probability)
+
+if (flood_probability >= 0.00 and flood_probability <= 0.25) :
     print("Aman")
-elif (example_prediction >= 25.10 or example_prediction <= 50.00) :
+elif (flood_probability >= 0.251 and flood_probability <= 0.5) :
     print("Siaga")
-elif (example_prediction >= 50.10 or example_prediction <= 75.00) :
+elif (flood_probability >= 0.51 and flood_probability <= 0.75) :
     print("Waspada")
-elif (example_prediction >= 75.10 or example_prediction <= 100.00) :
+elif (flood_probability >= 0.751 and flood_probability <= 1) :
     print("Awas")

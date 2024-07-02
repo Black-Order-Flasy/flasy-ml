@@ -1,46 +1,42 @@
 # app.py
 
 from flask import Flask, request, jsonify
+import joblib
 import numpy as np
 import pandas as pd
 import pickle
 
 app = Flask(__name__)
-
 # Load the saved centroids (assuming they are pickled)
-with open('model/kmeans_centroids.pkl', 'rb') as f:
-    centroids = pickle.load(f)
+rf_model = joblib.load('random_forest_classifier/model/flood_prediction_rf_model.pkl')
 
-def predict_flood_probability(rr, forest_ratio, streamflow):
-    with open('attempt3_compare/model/flood_probability_best_model.pkl', 'rb') as file:
-        model = pickle.load(file)
-    features = pd.DataFrame({
-        'RR': [rr],
-        'Forest_Ratio': [forest_ratio],
-        'Streamflow': [streamflow]
-    })
-    prediction = model.predict(features)
-    return prediction[0]
+
+def predict_flood_probability_rf(rainfall, forest_ratio, streamflow):
+    prob = rf_model.predict_proba([[rainfall, forest_ratio, streamflow]])[0][1]
+    return prob
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
     rainfall = float(data['rainfall'])
-    forest_ratio = float(data['forest_ratio'])
+    # forest_ratio = float(data['forest_ratio'])
+    forest_ratio = 0
     streamflow = float(data['streamflow'])
 
-    predicted_data = predict_flood_probability(rainfall, forest_ratio, streamflow)
+    predicted_data = predict_flood_probability_rf(rainfall, forest_ratio, streamflow)
 
     category = ""
-    if (predicted_data >= 1.00 or predicted_data <= 25.00) :
+    if (predicted_data >= 0.00 and predicted_data <= 0.25) :
         category = "Aman"
-    elif (predicted_data >= 25.10 or predicted_data <= 50.00) :
+    elif (predicted_data >= 0.251 and predicted_data <= 0.5) :
         category = "Siaga"
-    elif (predicted_data >= 50.10 or predicted_data <= 75.00) :
+    elif (predicted_data >= 0.51 and predicted_data <= 0.75) :
         category = "Waspada"
-    elif (predicted_data >= 75.10 or predicted_data <= 100.00) :
+    elif (predicted_data >= 0.751 and predicted_data <= 1) :
         category = "Awas"
+        
+
 
     return jsonify({
         'predicted_data': int(predicted_data),
